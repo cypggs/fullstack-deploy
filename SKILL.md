@@ -18,6 +18,14 @@ When this skill is loaded, follow this checklist before doing anything else:
    set -a && source .env && set +a
    ```
    If `.env` is missing or empty, stop and ask the user to copy `.env.example` to `.env` and fill it.
+   
+   Required Supabase credentials for full automation:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY` (for the frontend/client)
+   - `SUPABASE_SERVICE_ROLE_KEY` (for server-side/admin operations)
+   - `SUPABASE_MANAGEMENT_TOKEN` (for automated SQL execution)
+   
+   If `SUPABASE_MANAGEMENT_TOKEN` is missing, explain that database setup will require manual execution in the Supabase SQL Editor.
 
 2. **Verify tooling:**
    ```bash
@@ -85,7 +93,19 @@ The complete workflow follows these phases:
    - Storage policies for anonymous/authenticated access
    - MIME type restrictions
 
-3. **Provide Setup Instructions** - Guide user to execute SQL in Supabase dashboard.
+3. **Execute SQL automatically** - Use the Supabase Management API to run `database.sql` without manual dashboard work:
+   ```bash
+   set -a && source .env && set +a
+   jq -Rs '{query: .}' database.sql | \
+   curl -s -X POST "https://api.supabase.com/v1/projects/{project-ref}/database/query" \
+     -H "Authorization: Bearer $SUPABASE_MANAGEMENT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d @-
+   ```
+   - The project ref is the subdomain of your `SUPABASE_URL` (e.g., `mclpscvtkxldycxoidoc`).
+   - Verify the schema by querying the newly created table.
+
+4. **Fallback to manual setup** - If `SUPABASE_MANAGEMENT_TOKEN` is not available, provide the `database.sql` file and ask the user to run it in the Supabase SQL Editor.
 
 ### Phase 3: Application Development
 
@@ -263,7 +283,10 @@ All deployment credentials are managed via environment variables:
    set -a && source .env && set +a
    ```
 3. Alternatively, advanced users can put the same variables in `.claude/settings.json` under `"env"`; Claude Code will auto-load them for every Bash call.
-4. `references/credentials.md` documents what each key is for and where to obtain it.
+4. `references/credentials.md` documents what each key is for and where to obtain it, including the three Supabase tokens:
+   - `SUPABASE_ANON_KEY` for frontend/client access
+   - `SUPABASE_SERVICE_ROLE_KEY` for server-side/admin access
+   - `SUPABASE_MANAGEMENT_TOKEN` for automated SQL execution
 
 **Never commit `.env` or `.claude/settings.json` to Git.** They are already ignored by `.gitignore`.
 
@@ -330,7 +353,8 @@ When user says: "Build me a task management app with user authentication"
    - Todo CRUD API routes
    - React components for todo list
 5. **Git & GitHub**: Initialize, commit, create repo, push
-6. **Vercel**: Deploy, add env vars (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
+6. **Vercel**: Deploy, add env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+   - `SUPABASE_SERVICE_ROLE_KEY` and `SUPABASE_MANAGEMENT_TOKEN` stay in `.env` for server-side/automation use and are not exposed to the browser.
 7. **Completion**: Provide production URL, GitHub link, verify functionality
 
 ## Workflow Optimization
@@ -372,7 +396,7 @@ When user requests changes after deployment:
 
 For database schema changes:
 1. Create migration SQL file
-2. Test in Supabase SQL editor
+2. Execute it automatically via the Supabase Management API using `SUPABASE_MANAGEMENT_TOKEN`
 3. Update application code to match new schema
 4. Deploy application changes
-5. Run migration SQL in production database
+5. If `SUPABASE_MANAGEMENT_TOKEN` is unavailable, run the migration SQL in the Supabase SQL Editor manually

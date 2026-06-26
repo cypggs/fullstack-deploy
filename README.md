@@ -85,12 +85,14 @@ ln -s /path/to/fullstack-deploy fullstack-deploy
 |------|------|----------|
 | **GitHub** | 自动创建仓库、推送代码 | [→ 创建 Personal Access Token](https://github.com/settings/tokens/new) |
 | **Vercel** | 部署网站、管理环境变量 | [→ 创建 Access Token](https://vercel.com/account/tokens) |
-| **Supabase** | 数据库、用户认证、文件存储 | [→ 进入 Dashboard 创建项目](https://supabase.com/dashboard/projects) |
+| **Supabase 项目** | 数据库 URL、anon key、service_role key | [→ 进入 Dashboard 创建项目](https://supabase.com/dashboard/projects) |
+| **Supabase 账号** | Management API Token（自动执行 SQL 必备） | [→ 创建 Account Token](https://supabase.com/dashboard/account/tokens) |
 
 **权限说明：**
 - GitHub Token 需要勾选 `repo` 和 `workflow`
 - Vercel Token 复制后保存好，Team ID 可在 Vercel 控制台 URL 或 Team Settings 查看
-- Supabase 的项目 URL 和 `anon public` key 在项目设置的 API 页面
+- Supabase 的项目 URL、`anon public` key、`service_role` key 都在 **Project Settings → API** 页面
+- Supabase Management API Token 在 **Account → Access Tokens** 页面创建，用于自动执行 `database.sql`
 
 ### 3. 配置环境变量
 
@@ -112,9 +114,14 @@ VERCEL_TOKEN=xxxxxxxxxx
 VERCEL_TEAM_ID=team_xxxxxxxxxx        # 个人账号可留空
 
 # Supabase project credentials
-# Find these in your project dashboard: https://supabase.com/dashboard/projects
+# Project URL / anon key / service_role key: https://supabase.com/dashboard/project/_/settings/api
 SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_ANON_KEY=eyJ...
+SUPABASE_ANON_KEY=eyJ...               # 前端/浏览器客户端使用
+SUPABASE_SERVICE_ROLE_KEY=eyJ...       # 服务端使用，切勿暴露到浏览器
+
+# Supabase Management API Token（自动执行 SQL 必备）
+# Create at: https://supabase.com/dashboard/account/tokens
+SUPABASE_MANAGEMENT_TOKEN=sbp_...
 ```
 
 > **安全提示：** `.env` 已被 `.gitignore` 排除，永远不会被提交。
@@ -130,7 +137,9 @@ SUPABASE_ANON_KEY=eyJ...
     "VERCEL_TOKEN": "xxxxxxxxxx",
     "VERCEL_TEAM_ID": "team_xxxxxxxxxx",
     "SUPABASE_URL": "https://xxxx.supabase.co",
-    "SUPABASE_ANON_KEY": "eyJ..."
+    "SUPABASE_ANON_KEY": "eyJ...",
+    "SUPABASE_SERVICE_ROLE_KEY": "eyJ...",
+    "SUPABASE_MANAGEMENT_TOKEN": "sbp_..."
   }
 }
 ```
@@ -193,6 +202,7 @@ Vercel 部署 + 环境变量配置
 - `.env` 和 `.claude/settings.json` 已加入 `.gitignore`，**永远不要提交到 GitHub**。
 - GitHub Token 拥有仓库写入权限，请妥善保管，不要截图或外传。
 - Supabase 的 `anon key` 是客户端可用的，**必须配合 RLS 策略**保护数据。
+- Supabase 的 `service_role key` 和 `SUPABASE_MANAGEMENT_TOKEN` 权限很高，**只能留在服务端 `.env` 中**，绝不能写入前端代码或暴露到浏览器。
 - 建议定期轮换 token。
 
 ---
