@@ -172,6 +172,70 @@ English version:
 
 ---
 
+## 给其他 AI Agent 使用
+
+`fullstack-deploy` 不是 npm 包，所以**不支持 `npx skills add`**。它的本质是一份结构化指令（`SKILL.md`）+ 自动化脚本，任何支持 system prompt / skills / rules 的 AI Agent 都可以接入。
+
+### 通用 Agent Prompt
+
+把下面这段 prompt 复制到你的 Agent 的 system prompt、rules 或 skills 描述里，Agent 就会按 `fullstack-deploy` 的流程工作：
+
+```text
+You are running the fullstack-deploy skill. Your job is to turn a user request into a live full-stack website in one conversation.
+
+When the user says anything like "build an app", "create a website", "deploy my project", "full-stack application", or uses "/fullstack-deploy", follow this pipeline:
+
+1. Requirements & Planning
+   - Ask clarifying questions if the idea is vague.
+   - Recommend a framework (Next.js for full-stack React, Flask/FastAPI for Python, Astro for content sites, etc.).
+   - Design the Supabase schema: tables, relationships, RLS policies, storage buckets.
+
+2. Database Setup
+   - Write a complete database.sql file.
+   - Use SUPABASE_MANAGEMENT_TOKEN to execute it automatically via the Supabase Management API when available.
+   - If no management token, provide the SQL and ask the user to run it in Supabase SQL Editor.
+
+3. Application Development
+   - Initialize the project in a subdirectory (e.g., site/) when the current directory already contains skill files.
+   - Install dependencies and implement features: database client, API routes, UI components, auth, uploads if needed.
+   - Test locally with npm run dev or equivalent.
+
+4. Git & GitHub
+   - git init, create .gitignore, commit, create a GitHub repo with GITHUB_TOKEN, push to main.
+
+5. Vercel Deployment
+   - Deploy with vercel --token $VERCEL_TOKEN --yes --prod.
+   - Add environment variables via the Vercel API.
+   - Disable ssoProtection and passwordProtection so the site is public.
+   - Redeploy with --force if needed.
+
+6. Completion
+   - Verify the production URL returns 200.
+   - Provide the production URL, GitHub repo URL, and Vercel dashboard URL.
+   - Create README / CLAUDE.md documentation.
+
+Rules:
+- Always load credentials from .env first with: set -a && source .env && set +a
+- Never commit .env or .claude/settings.json.
+- Use TodoWrite or equivalent to track progress across the 6 phases.
+- Prefer automated API calls; fall back to manual steps only when tokens are missing.
+```
+
+### 各主流 Agent 接入方式
+
+| Agent | 接入方式 |
+|-------|----------|
+| **Claude Code** | 克隆到 `~/.claude/skills/fullstack-deploy`，对话中输入 `/fullstack-deploy 我要做...` |
+| **Cursor** | 把上面「通用 Agent Prompt」贴到项目的 `.cursorrules` 文件，或在 Cursor Settings → Rules 里粘贴 |
+| **OpenAI Codex / CLI** | 把 prompt 作为 `--system-prompt` 或写入 `codex.md`（如果支持），运行前确保 `.env` 已加载 |
+| **OpenClaw** | 把 `SKILL.md` 放到 agent 的 skills/rules 目录，或在 system prompt 中引用本仓库 |
+| **Hermes Agent** | 在配置文件的 `system_prompt` 或 `skills` 字段粘贴「通用 Agent Prompt」 |
+| **Pi Agent** | 把 prompt 加到 Pi 的 agent rules / memory 中，或每次对话开头粘贴 |
+
+> 提示：如果你的 Agent 支持读取本地文件，可以直接让它先读取 `SKILL.md` 和 `references/*.md`，这样比纯 prompt 更完整。
+
+---
+
 ## 支持的技术栈
 
 | 类型 | 框架 |
