@@ -27,6 +27,16 @@
 
 **零成本起步，一句话生成线上网站。**
 
+更关键的是，这背后用的全是**赛博菩萨级**服务——免费额度对独立开发者极其友好：
+
+| 服务 | 免费额度亮点 | 适合场景 |
+|------|-------------|----------|
+| **Vercel** | Hobby 版免费部署、自动 HTTPS、全球 CDN | 前端托管、Serverless Functions |
+| **Supabase** | Free 版 500MB 数据库、无限 API 请求、内置 Auth & Storage | 数据库、认证、文件存储 |
+| **GitHub** | 免费私有/公开仓库、Actions CI/CD | 代码托管、自动构建 |
+
+对个人项目、MVP、独立开发产品来说，这个组合**完全免费**就能跑很久。只有流量或数据量真正做大后才需要付费升级。
+
 ---
 
 ## 效果演示
@@ -197,6 +207,53 @@ Vercel 部署 + 环境变量配置
 
 ---
 
+## 进阶玩法
+
+### 🌐 绑定自己的域名 + Cloudflare 自动解析
+
+Vercel 默认会分配一个 `xxx.vercel.app` 的二级域名，但如果你有自己的域名，强烈建议搭配 **Cloudflare** 使用：
+
+- **免费 DNS 解析**：Cloudflare 免费版就支持自动/批量 DNS 管理
+- **自动 HTTPS**：Vercel 会自动为自定义域名申请并续期 SSL 证书
+- **全球 CDN 加速**：Cloudflare 的 CDN + Vercel Edge Network 双重加速
+- **域名安全保护**：隐藏源站、DDoS 防护、Page Rules 重定向
+
+**绑定步骤：**
+1. 在 Vercel 项目控制台进入 **Settings → Domains**，添加你的域名（如 `app.yourdomain.com`）。
+2. Vercel 会给出需要添加的 DNS 记录（CNAME 或 A 记录）。
+3. 去 Cloudflare 的 DNS 面板添加对应记录，**关闭代理**（灰色云朵）让 Vercel 验证通过。
+4. 验证成功后，可以重新开启 Cloudflare 代理（橙色云朵）享受 CDN 和安全功能。
+
+### 🔔 增加 Webhook 通知
+
+想让部署成功/失败后自动收到通知？可以在以下环节接入 Webhook：
+
+- **Vercel Deploy Hooks**：在 Vercel 项目设置中配置 Deploy Hook URL，外部触发重新部署
+- **GitHub Actions Webhooks**：监听 push、pull_request 事件，推送到 Slack/钉钉/飞书
+- **Supabase Database Webhooks**：数据库表发生变更时触发 HTTP 请求，实现实时通知或联动其他服务
+- **Cloudflare Workers**：在自定义域名层面做访问统计、A/B 测试、边缘逻辑
+
+推荐组合：
+```
+GitHub push → Vercel 自动构建 → 部署成功 → Webhook → Slack/飞书群通知
+```
+
+### 🛠️ 持续定制你的 Skill
+
+这个 Skill 只是起点。建议你把它当成自己的**部署脚手架**，不断按自己的需求魔改：
+
+- **加用户系统**：Supabase Auth + 登录/注册页面
+- **加后台管理**：基于 RLS 的角色权限、管理员面板
+- **加文件上传**：Supabase Storage + 图片/文档管理
+- **加支付**：Stripe / Lemon Squeezy 集成
+- **加国际化**：多语言支持
+- **加 AI 能力**：接入 Claude / OpenAI API
+- **换技术栈**：Vue、Svelte、Flask、FastAPI、Astro 都可以
+
+它的本质是一组自动化脚本 + 最佳实践。你越用它，越应该把它改成**完全符合自己习惯的工作流**。
+
+---
+
 ## 安全须知
 
 - `.env` 和 `.claude/settings.json` 已加入 `.gitignore`，**永远不要提交到 GitHub**。
@@ -222,7 +279,7 @@ A: 常见原因：
 3. 构建报错 → 查看 Vercel 控制台日志，修复后重新 push
 
 **Q: 可以绑定自己的域名吗？**
-A: 可以。部署成功后，在 Vercel 控制台添加 Custom Domain 即可。
+A: 可以。部署成功后，在 Vercel 控制台添加 Custom Domain 即可。更推荐使用 **Cloudflare** 做 DNS 解析和 CDN 加速，具体步骤见上方的「绑定自己的域名 + Cloudflare 自动解析」。
 
 ---
 
@@ -234,7 +291,9 @@ A: 可以。部署成功后，在 Vercel 控制台添加 Custom Domain 即可。
 
 现在我已经用它部署了几十个网站，从个人工具到完整产品。把它开源出来，希望更多人可以**零成本拥有自己的全栈网站**。
 
-如果你用它做出了有趣的东西，欢迎来 [GitHub Issues](https://github.com/cypggs/fullstack-deploy/issues) 分享。
+**这个 Skill 的最佳用法是：先用它跑通第一个项目，然后 fork 一份改成你自己的专属部署工作流。** 每个人的技术栈和习惯不同，把它调制成最适合自己的形状，才是赛博菩萨们的真正用法。
+
+如果你用它做出了有趣的东西，或者改出了更酷的版本，欢迎来 [GitHub Issues](https://github.com/cypggs/fullstack-deploy/issues) 分享，也欢迎 PR。
 
 ---
 
