@@ -2,19 +2,13 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase client environment variables");
 }
 
-// Browser/client client (respects RLS)
+// Browser/client client (respects RLS) — safe to import in client components.
 export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: { persistSession: false },
-});
-
-// Server-side admin client (bypasses RLS)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: { persistSession: false },
 });
 
