@@ -4,6 +4,7 @@
 
 > **English summary:** `fullstack-deploy` is a Claude Code skill that turns a single sentence into a live full-stack website. It handles requirements, Supabase database design, app development, GitHub repo creation, Vercel deployment, and hands you a public URL — all in one conversation. Zero cost to start.
 
+https://fullstack-deploy.openclihub.com/
 ---
 
 ## 这是什么？
@@ -23,7 +24,7 @@
 3. 💻 应用开发（Next.js / Vue / Flask / FastAPI / Astro 等任意 Vercel 支持框架）
 4. 🐙 GitHub 仓库创建 & 代码推送
 5. 🚀 Vercel 生产环境部署
-6. 🌐 给你一个可直接访问的 URL
+6. 🌐 给你一个可直接访问的 URL (Vercel国内可能无法直接访问，不过域名解析到自己的就可以了)
 
 **零成本起步，一句话生成线上网站。**
 
@@ -360,6 +361,8 @@ A: 可以。部署成功后，在 Vercel 控制台添加 Custom Domain 即可。
 如果你用它做出了有趣的东西，或者改出了更酷的版本，欢迎来 [GitHub Issues](https://github.com/cypggs/fullstack-deploy/issues) 分享，也欢迎 PR。
 
 ---
+<img width="1206" height="2622" alt="be8c26910340c516ba7299c0402d53c1" src="https://github.com/user-attachments/assets/1c1d9afc-f49c-4c90-b337-3ebab15fcd46" />
+
 
 ## 许可证
 
